@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bhakshi Friendly Conversation</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial, sans-serif;
+}
+
+:root{
+    --bg:#060b18;
+    --panel:rgba(10,18,38,.78);
+    --text:#ffffff;
+    --muted:#aeb8d0;
+    --border:rgba(255,255,255,.12);
+    --bubble:rgba(255,255,255,.09);
+    --primary:#8b5cf6;
+    --secondary:#06b6d4;
+}
+
+body{
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    overflow:hidden;
+    transition:.3s;
+}
+
+/* ---------- Animated Background ---------- */
+
+.background{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:-5;
+    background:
+        radial-gradient(circle at 15% 20%,rgba(139,92,246,.28),transparent 30%),
+        radial-gradient(circle at 85% 75%,rgba(6,182,212,.25),transparent 30%),
+        var(--bg);
+}
+
+.orb{
+    position:absolute;
+    width:300px;
+    height:300px;
+    border-radius:50%;
+    filter:blur(80px);
+    opacity:.28;
+    animation:moveOrb 12s infinite alternate ease-in-out;
+}
+
+.orb.one{
+    background:#8b5cf6;
+    top:-100px;
+    left:-80px;
+}
+
+.orb.two{
+    background:#06b6d4;
+    right:-100px;
+    bottom:-100px;
+    animation-delay:2s;
+}
+
+.orb.three{
+    background:#ec4899;
+    left:45%;
+    top:40%;
+    width:180px;
+    height:180px;
+    animation-delay:4s;
+}
+
+@keyframes moveOrb{
+    from{
+        transform:translate(0,0) scale(1);
+    }
+    to{
+        transform:translate(80px,50px) scale(1.25);
+    }
+}
+
+.stars{
+    position:absolute;
+    inset:0;
+    background-image:
+        radial-gradient(circle,rgba(255,255,255,.8) 1px,transparent 1px),
+        radial-gradient(circle,rgba(255,255,255,.45) 1px,transparent 1px);
+    background-size:70px 70px,110px 110px;
+    animation:stars 20s linear infinite;
+}
+
+@keyframes stars{
+    from{
+        transform:translateY(0);
+    }
+    to{
+        transform:translateY(70px);
+    }
+}
+
+/* ---------- App ---------- */
+
+.app{
+    height:100vh;
+    display:flex;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar{
+    width:260px;
+    padding:18px;
+    background:var(--panel);
+    backdrop-filter:blur(20px);
+    border-right:1px solid var(--border);
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:20px;
+}
+
+/* 🐱 Bhakshi Logo */
+
+.logoIcon{
+    width:52px;
+    height:52px;
+    border-radius:17px;
+    display:grid;
+    place-items:center;
+    font-size:30px;
+    background:linear-gradient(
+        135deg,
+        #8b5cf6,
+        #06b6d4
+    );
+    box-shadow:
+        0 0 25px rgba(139,92,246,.5);
+    animation:catLogo 2.5s infinite;
+}
+
+@keyframes catLogo{
+    0%,100%{
+        transform:scale(1) rotate(0deg);
+    }
+    50%{
+        transform:scale(1.08) rotate(3deg);
+    }
+}
+
+.logo h2{
+    font-size:17px;
+}
+
+.logo small{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.sideBtn{
+    width:100%;
+    padding:12px;
+    margin-bottom:8px;
+    border:0;
+    border-radius:12px;
+    background:rgba(255,255,255,.07);
+    color:var(--text);
+    cursor:pointer;
+    text-align:left;
+    transition:.25s;
+}
+
+.sideBtn:hover{
+    background:rgba(139,92,246,.35);
+    transform:translateX(3px);
+}
+
+.historyTitle{
+    margin:18px 0 8px;
+    font-size:11px;
+    color:var(--muted);
+}
+
+.history{
+    max-height:43vh;
+    overflow:auto;
+}
+
+.historyItem{
+    padding:9px;
+    margin:5px 0;
+    border-radius:9px;
+    background:rgba(255,255,255,.05);
+    color:var(--muted);
+    font-size:12px;
+    cursor:pointer;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* ---------- Main ---------- */
+
+.main{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ---------- Header ---------- */
+
+.header{
+    height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+    background:rgba(5,12,25,.45);
+    backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--border);
+}
+
+.title{
+    font-weight:bold;
+    font-size:18px;
+}
+
+.title span{
+    color:#a78bfa;
+}
+
+.modeBtn{
+    width:42px;
+    height:42px;
+    border:0;
+    border-radius:50%;
+    background:rgba(255,255,255,.09);
+    color:white;
+    cursor:pointer;
+    font-size:20px;
+}
+
+/* ---------- Chat ---------- */
+
+.chat{
+    flex:1;
+    overflow-y:auto;
+    padding:25px;
+}
+
+.welcome{
+    max-width:720px;
+    margin:40px auto;
+    text-align:center;
+}
+
+.welcomeIcon{
+    width:100px;
+    height:100px;
+    margin:auto;
+    display:grid;
+    place-items:center;
+    font-size:55px;
+    border-radius:30px;
+    background:linear-gradient(
+        135deg,
+        #8b5cf6,
+        #06b6d4
+    );
+    box-shadow:
+        0 0 45px rgba(139,92,246,.45);
+    animation:welcomeCat 2.5s infinite;
+}
+
+@keyframes welcomeCat{
+    0%,100%{
+        transform:scale(1);
+    }
+    50%{
+        transform:scale(1.06);
+    }
+}
+
+.welcome h1{
+    margin-top:20px;
+    font-size:30px;
+}
+
+.welcome p{
+    margin-top:10px;
+    line-height:1.7;
+    color:var(--muted);
+}
+
+/* ---------- Messages ---------- */
+
+.message{
+    max-width:800px;
+    margin:12px auto;
+    display:flex;
+    animation:messageIn .3s ease;
+}
+
+@keyframes messageIn{
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.message.user{
+    justify-content:flex-end;
+}
+
+.bubble{
+    max-width:78%;
+    padding:13px 16px;
+    border-radius:18px;
+    line-height:1.55;
+    white-space:pre-wrap;
+}
+
+.user .bubble{
+    background:linear-gradient(
+        135deg,
+        #7c3aed,
+        #2563eb
+    );
+    border-bottom-right-radius:5px;
+}
+
+.bot .bubble{
+    background:var(--bubble);
+    border:1px solid var(--border);
+    border-bottom-left-radius:5px;
+}
+
+/* ---------- Typing ---------- */
+
+.typing{
+    display:flex;
+    gap:5px;
+}
+
+.typing i{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#a78bfa;
+    animation:typing .8s infinite alternate;
+}
+
+.typing i:nth-child(2){
+    animation-delay:.2s;
+}
+
+.typing i:nth-child(3){
+    animation-delay:.4s;
+}
+
+@keyframes typing{
+    to{
+        opacity:.2;
+        transform:translateY(-4px);
+    }
+}
+
+/* ---------- Input ---------- */
+
+.inputArea{
+    padding:15px 20px 20px;
+}
+
+.inputBox{
+    max-width:850px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px;
+    border-radius:20px;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--border);
+    backdrop-filter:blur(18px);
+}
+
+.inputBox input{
+    flex:1;
+    min-width:0;
+    border:0;
+    outline:0;
+    background:transparent;
+    color:var(--text);
+    padding:12px;
+    font-size:15px;
+}
+
+.inputBox input::placeholder{
+    color:var(--muted);
+}
+
+.iconBtn,
+.sendBtn{
+    border:0;
+    cursor:pointer;
+    color:white;
+}
+
+.iconBtn{
+    width:40px;
+    height:40px;
+    border-radius:12px;
+    background:rgba(255,255,255,.08);
+}
+
+.sendBtn{
+    width:44px;
+    height:44px;
+    border-radius:14px;
+    background:linear-gradient(
+        135deg,
+        #7c3aed,
+        #06b6d4
+    );
+    font-size:18px;
+}
+
+.status{
+    text-align:center;
+    margin-top:8px;
+    color:var(--muted);
+    font-size:10px;
+}
+
+/* ---------- Light Mode ---------- */
+
+body.light{
+    --bg:#edf3ff;
+    --panel:rgba(255,255,255,.75);
+    --text:#172033;
+    --muted:#667085;
+    --border:rgba(0,0,0,.09);
+    --bubble:rgba(255,255,255,.85);
+}
+
+body.light .header{
+    background:rgba(255,255,255,.65);
+}
+
+body.light .modeBtn,
+body.light .sideBtn,
+body.light .iconBtn{
+    color:#172033;
+}
+
+/* ---------- Mobile ---------- */
+
+@media(max-width:750px){
+
+    .sidebar{
+        width:70px;
+        padding:10px;
+    }
+
+    .logo h2,
+    .logo small,
+    .sideBtn span,
+    .historyTitle,
+    .history{
+        display:none;
+    }
+
+    .logoIcon{
+        width:50px;
+        height:50px;
+    }
+
+    .sideBtn{
+        text-align:center;
+        font-size:18px;
+    }
+
+    .chat{
+        padding:15px 10px;
+    }
+
+    .bubble{
+        max-width:88%;
+    }
+
+    .welcome h1{
+        font-size:23px;
+    }
+
+    .welcomeIcon{
+        width:80px;
+        height:80px;
+        font-size:43px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Animated Background -->
+
+<div class="background">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+    <div class="stars"></div>
+</div>
+
+
+<div class="app">
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <div class="logoIcon">🐱</div>
+
+        <div>
+            <h2>பவ்யா Conversation</h2>
+            <small>Bhakshi Friendly Conversation</small>
+        </div>
+
+    </div>
+
+
+    <button class="sideBtn" onclick="newChat()">
+        ➕ <span>New Chat</span>
+    </button>
+
+    <button class="sideBtn" onclick="showCalculator()">
+        🧮 <span>Calculator</span>
+    </button>
+
+    <button class="sideBtn" onclick="showGame()">
+        🎮 <span>Mini Game</span>
+    </button>
+
+    <button class="sideBtn" onclick="showPlanner()">
+        📅 <span>Daily Plan</span>
+    </button>
+
+    <button class="sideBtn" onclick="openPhoto()">
+        📷 <span>Camera / Photo</span>
+    </button>
+
+    <button class="sideBtn" onclick="downloadChat()">
+        📄 <span>Save Chat</span>
+    </button>
+
+
+    <div class="historyTitle">
+        CHAT HISTORY
+    </div>
+
+    <div class="history" id="history"></div>
+
+</aside>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="main">
+
+    <header class="header">
+
+        <div class="title">
+            🐱 Bhakshi
+            <span>Friendly Conversation</span>
+        </div>
+
+        <button
+            class="modeBtn"
+            id="modeBtn"
+            onclick="toggleMode()">
+            🌙
+        </button>
+
+    </header>
+
+
+    <!-- CHAT AREA -->
+
+    <section class="chat" id="chatBox">
+
+        <div class="welcome" id="welcome">
+
+            <div class="welcomeIcon">
+                🐱
+            </div>
+
+            <h1>
+                Hi, நான் Bhakshi 👋
+            </h1>
+
+            <p>
+                பவ்யா Friendly Conversation 💜<br>
+                என்ன பேசணும்னாலும் சொல்லுங்க!
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- INPUT AREA -->
+
+    <div class="inputArea">
+
+        <div class="inputBox">
+
+            <button
+                class="iconBtn"
+                onclick="startVoice()"
+                title="Voice">
+                🎤
+            </button>
+
+            <input
+                id="messageInput"
+                type="text"
+                placeholder="Message Bhakshi..."
+                autocomplete="off"
+            >
+
+            <button
+                class="iconBtn"
+                onclick="openPhoto()"
+                title="Camera / Photo">
+                📷
+            </button>
+
+            <button
+                class="sendBtn"
+                onclick="sendMessage()">
+                ➤
+            </button>
+
+        </div>
+
+        <div class="status">
+            Bhakshi • Friendly Conversation • 🐱
+        </div>
+
+    </div>
+
+</main>
+
+</div>
+
+
+<!-- CAMERA / PHOTO -->
+
+<input
+    type="file"
+    id="photoInput"
+    accept="image/*"
+    capture="environment"
+    style="display:none"
+>
+
+
+<script>
+
+/* =====================================================
+   BHAKSHI FRIENDLY CONVERSATION
+===================================================== */
+
+const input =
+    document.getElementById("messageInput");
+
+const chatBox =
+    document.getElementById("chatBox");
+
+const historyBox =
+    document.getElementById("history");
+
+let conversation = [];
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function addMessage(text,type){
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "message " + type;
+
+    const bubble =
+        document.createElement("div");
+
+    bubble.className =
+        "bubble";
+
+    bubble.textContent =
+        text;
+
+    row.appendChild(bubble);
+
+    chatBox.appendChild(row);
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+    conversation.push({
+        type:type,
+        text:text
+    });
+
+    saveHistory();
+}
+
+
+/* =====================================================
+   TYPING ANIMATION
+===================================================== */
+
+function showTyping(){
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "message bot";
+
+    row.id =
+        "typingMessage";
+
+    row.innerHTML = `
+        <div class="bubble">
+            <div class="typing">
+                <i></i>
+                <i></i>
+                <i></i>
+            </div>
+        </div>
+    `;
+
+    chatBox.appendChild(row);
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+}
+
+
+function removeTyping(){
+
+    const typing =
+        document.getElementById(
+            "typingMessage"
+        );
+
+    if(typing){
+        typing.remove();
+    }
+}
+
+
+/* =====================================================
+   TOP 20+ FRIENDLY CONVERSATION REPLIES
+===================================================== */
+
+function getReply(message){
+
+    const msg =
+        message
+        .toLowerCase()
+        .trim();
+
+
+    /* 1. HI */
+
+    if(
+        msg === "hi" ||
+        msg === "hii" ||
+        msg === "hello" ||
+        msg === "hey" ||
+        msg.includes("ஹாய்") ||
+        msg.includes("ஹலோ")
+    ){
+        return "ஹாய் பவ்யா! 🐱💜 சொல்லுங்க, என்ன பண்ணுறீங்க?";
+    }
+
+
+    /* 2. HOW ARE YOU */
+
+    if(
+        msg.includes("how are you") ||
+        msg.includes("எப்படி இருக்க") ||
+        msg.includes("நல்லா இருக்க")
+    ){
+        return "நான் நல்லா இருக்கேன் பவ்யா 😊 நீங்க எப்படி இருக்கீங்க?";
+    }
+
+
+    /* 3. WHAT ARE YOU DOING */
+
+    if(
+        msg.includes("what are you doing") ||
+        msg.includes("என்ன பண்ற") ||
+        msg.includes("என்ன பண்ணுற")
+    ){
+        return "நான் இப்போ உங்களோட பேசிட்டு இருக்கேன் 😄 நீங்க இப்போ என்ன பண்ணுறீங்க?";
+    }
+
+
+    /* 4. HAPPY */
+
+    if(
+        msg.includes("happy") ||
+        msg.includes("ஹாப்பி") ||
+        msg.includes("சந்தோஷ") ||
+        msg.includes("செம ஹாப்பி")
+    ){
+        return "வாவ்! 😍 நீங்க ஹாப்பியா இருக்கீங்கன்னு கேட்கவே எனக்கும் ரொம்ப சந்தோஷம்!";
+    }
+
+
+    /* 5. SAD */
+
+    if(
+        msg.includes("sad") ||
+        msg.includes("சோக") ||
+        msg.includes("சோகம்") ||
+        msg.includes("வருத்த") ||
+        msg.includes("கஷ்டமா") ||
+        msg.includes("feel")
+    ){
+        return "கவலைப்படாதீங்க பவ்யா ❤️ என்ன நடந்துச்சு என்று சொல்லுங்க. நான் கேட்கிறேன்.";
+    }
+
+
+    /* 6. MOM SCOLDED */
+
+    if(
+        msg.includes("அம்மா திட்ட") ||
+        msg.includes("mom scold") ||
+        msg.includes("mother scold")
+    ){
+        return "பரவாயில்லை பவ்யா ❤️ மனசுக்கு ரொம்ப எடுத்துக்காதீங்க. என்ன நடந்துச்சு என்று சொல்லுங்க.";
+    }
+
+
+    /* 7. DAD */
+
+    if(
+        msg.includes("அப்பா") ||
+        msg.includes("dad") ||
+        msg.includes("father")
+    ){
+        return "அப்பாவைப் பற்றி சொல்றீங்களா? 😊 சொல்லுங்க பவ்யா, கேட்கிறேன்.";
+    }
+
+
+    /* 8. MOM */
+
+    if(
+        msg.includes("அம்மா") ||
+        msg.includes("mom") ||
+        msg.includes("mother")
+    ){
+        return "அம்மாவைப் பற்றி சொல்றீங்களா? ❤️ என்ன நடந்துச்சு என்று சொல்லுங்க.";
+    }
+
+
+    /* 9. FRIEND */
+
+    if(
+        msg.includes("friend") ||
+        msg.includes("ஃப்ரெண்ட்") ||
+        msg.includes("நண்ப")
+    ){
+        return "ஓஹோ 😊 friend விஷயமா? என்ன நடந்துச்சு என்று சொல்லுங்க.";
+    }
+
+
+    /* 10. FOOD */
+
+    if(
+        msg.includes("சாப்பிட்ட") ||
+        msg.includes("சாப்பிட") ||
+        msg.includes("saptiya") ||
+        msg.includes("food")
+    ){
+        return "நான் AI என்பதால் சாப்பிட முடியாது 😄 ஆனா நீங்க நல்லா சாப்பிட்டீங்களா? ❤️";
+    }
+
+
+    /* 11. THANKS */
+
+    if(
+        msg.includes("thanks") ||
+        msg.includes("thank you") ||
+        msg.includes("நன்றி") ||
+        msg.includes("தேங்க்ஸ்")
+    ){
+        return "You're welcome பவ்யா! 😊 எப்போதும் பேசலாம்.";
+    }
+
+
+    /* 12. WELCOME */
+
+    if(
+        msg.includes("welcome") ||
+        msg.includes("வெல்கம்")
+    ){
+        return "😊 Anytime! எப்போதும் பேசலாம் பவ்யா.";
+    }
+
+
+    /* 13. GOOD */
+
+    if(
+        msg.includes("good") ||
+        msg.includes("நல்லா") ||
+        msg.includes("சூப்பர்") ||
+        msg.includes("super")
+    ){
+        return "அருமை! 😄 நீங்க நல்லா பண்ணிட்டீங்க பவ்யா!";
+    }
+
+
+    /* 14. TODAY */
+
+    if(
+        msg.includes("இன்னைக்கு") ||
+        msg.includes("today")
+    ){
+        return "ஓ சூப்பர்! 😊 இன்று என்ன நடந்துச்சு? சொல்லுங்க.";
+    }
+
+
+    /* 15. GOOD NIGHT */
+
+    if(
+        msg.includes("good night") ||
+        msg.includes("குட் நைட்")
+    ){
+        return "Good night பவ்யா 🌙✨ நல்லா தூங்குங்க!";
+    }
+
+
+    /* 16. BYE */
+
+    if(
+        msg === "bye" ||
+        msg.includes("பை")
+    ){
+        return "சரி பவ்யா 😊 Bye! மீண்டும் பேசலாம். 🐱💜";
+    }
+
+
+    /* 17. CODING */
+
+    if(
+        msg.includes("coding") ||
+        msg.includes("code") ||
+        msg.includes("கோடிங்") ||
+        msg.includes("கோடு")
+    ){
+        return "Coding doubt-ஆ? 💻 HTML, CSS, JavaScript, Python, Java, C++ எதுவாக இருந்தாலும் சொல்லுங்க.";
+    }
+
+
+    /* 18. STUDIES */
+
+    if(
+        msg.includes("study") ||
+        msg.includes("படிப்பு") ||
+        msg.includes("exam") ||
+        msg.includes("exam")
+    ){
+        return "📚 Study doubt-ஆ? எந்த subject என்று சொல்லுங்க. நம்ம step-by-step-ஆ பார்க்கலாம்.";
+    }
+
+
+    /* 19. GAME */
+
+    if(
+        msg.includes("game") ||
+        msg.includes("கேம்")
+    ){
+        return "🎮 Game விளையாடலாமா? Sidebar-ல் Mini Game button இருக்கு!";
+    }
+
+
+    /* 20. DAILY PLAN */
+
+    if(
+        msg.includes("daily plan") ||
+        msg.includes("day plan") ||
+        msg.includes("டெய்லி பிளான்")
+    ){
+        return "📅 Daily Plan உருவாக்கலாம்! Sidebar-ல் Daily Plan button-ஐ அழுத்துங்க.";
+    }
+
+
+    /* =================================================
+       CODING SUBJECTS
+    ================================================= */
+
+
+    if(msg.includes("html")){
+        return "🌐 HTML doubt-ஆ? Code-ஐ அனுப்புங்க. என்ன problem என்று பார்க்கலாம்.";
+    }
+
+
+    if(msg.includes("css")){
+        return "🎨 CSS doubt-ஆ? Design problem-ஐ சொல்லுங்க.";
+    }
+
+
+    if(
+        msg.includes("javascript") ||
+        msg.includes("java script") ||
+        msg.includes(" js ")
+    ){
+        return "⚡ JavaScript doubt-ஆ? Code-ஐ அனுப்புங்க. Button, message, animation எல்லாம் பார்க்கலாம்.";
+    }
+
+
+    if(msg.includes("python")){
+        return "🐍 Python doubt-ஆ? Question அல்லது code-ஐ அனுப்புங்க.";
+    }
+
+
+    if(
+        msg.includes("java") &&
+        !msg.includes("javascript")
+    ){
+        return "☕ Java doubt-ஆ? எந்த concept என்று சொல்லுங்க.";
+    }
+
+
+    if(
+        msg.includes("c++") ||
+        msg.includes("cpp")
+    ){
+        return "💻 C++ doubt-ஆ? Problem-ஐ அனுப்புங்க.";
+    }
+
+
+    /* =================================================
+       SCHOOL SUBJECTS
+    ================================================= */
+
+
+    if(
+        msg.includes("physics") ||
+        msg.includes("ஃபிசிக்ஸ்") ||
+        msg.includes("பிசிக்ஸ்")
+    ){
+        return "⚡ Physics doubt-ஆ? Question-ஐ அனுப்புங்க. Step-by-step-ஆ explain பண்றேன்.";
+    }
+
+
+    if(
+        msg.includes("chemistry") ||
+        msg.includes("கெமிஸ்ட்ரி")
+    ){
+        return "🧪 Chemistry doubt-ஆ? Question-ஐ அனுப்புங்க.";
+    }
+
+
+    if(
+        msg.includes("math") ||
+        msg.includes("maths") ||
+        msg.includes("கணக்கு")
+    ){
+        return "🧮 Maths problem-ஆ? Question-ஐ அனுப்புங்க. Step-by-step-ஆ பார்க்கலாம்.";
+    }
+
+
+    /* =================================================
+       LORD MURUGAN
+    ================================================= */
+
+
+    if(
+        msg.includes("முருகர்") ||
+        msg.includes("முருகன்") ||
+        msg.includes("murugan") ||
+        msg.includes("muruga") ||
+        msg.includes("கந்தன்") ||
+        msg.includes("skanda") ||
+        msg.includes("கார்த்திகேயன்") ||
+        msg.includes("karthikeya")
+    ){
+        return "🙏 முருகப்பெருமான் பற்றி கேட்கிறீங்களா பவ்யா? முருகன் தமிழர் பக்தி மரபில் முக்கியமான தெய்வமாக போற்றப்படுகிறார். வேல் மற்றும் மயில் அவருடைய முக்கியமான அடையாளங்கள். உங்களுக்கு என்ன தெரிஞ்சிக்கணும் என்று சொல்லுங்க. ❤️";
+    }
+
+
+    /* MURUGAN VEL */
+
+    if(
+        msg.includes("முருகன் வேல்") ||
+        msg.includes("முருகர் வேல்") ||
+        msg.includes("வேலின் சிறப்பு") ||
+        msg.includes("murugan vel")
+    ){
+        return "🙏 முருகப்பெருமானின் வேல் அவருடைய முக்கியமான அடையாளங்களில் ஒன்று. பக்தி மரபில் அது ஞானம் மற்றும் தீமையை வெல்லும் சக்தியுடன் தொடர்புபடுத்தப்படுகிறது.";
+    }
+
+
+    /* MURUGAN PEACOCK */
+
+    if(
+        msg.includes("முருகன் மயில்") ||
+        msg.includes("முருகர் மயில்") ||
+        msg.includes("murugan peacock")
+    ){
+        return "🦚 மயில் முருகப்பெருமானின் வாகனமாக குறிப்பிடப்படுகிறது. அது முருகரின் முக்கியமான அடையாளங்களில் ஒன்றாகும். 🙏";
+    }
+
+
+    /* SIX ABODES */
+
+    if(
+        msg.includes("ஆறுபடை வீடு") ||
+        msg.includes("அறுபடை வீடு") ||
+        msg.includes("arupadai") ||
+        msg.includes("six abodes")
+    ){
+        return "🙏 முருகப்பெருமானின் ஆறுபடை வீடுகள்: திருப்பரங்குன்றம், திருச்செந்தூர், பழனி, சுவாமிமலை, திருத்தணி, பழமுதிர்சோலை.";
+    }
+
+
+    /* VALLI */
+
+    if(
+        msg.includes("வள்ளி") ||
+        msg.includes("valli")
+    ){
+        return "🙏 வள்ளி முருகப்பெருமானுடன் தொடர்புடைய முக்கியமான தெய்வீகப் பாத்திரம். அவரைப் பற்றிய கதைகள் தமிழ் பக்தி மரபில் பிரபலமானவை.";
+    }
+
+
+    /* DEIVANAI */
+
+    if(
+        msg.includes("தெய்வானை") ||
+        msg.includes("deivanai")
+    ){
+        return "🙏 தெய்வானை முருகப்பெருமானுடன் தொடர்புடைய முக்கியமான தெய்வீகப் பாத்திரம். அவரைப் பற்றியும் கேட்கலாம் பவ்யா.";
+    }
+
+
+    /* MURUGAN TEMPLE */
+
+    if(
+        msg.includes("முருகர் கோவில்") ||
+        msg.includes("முருகன் கோவில்") ||
+        msg.includes("murugan temple")
+    ){
+        return "🙏 முருகப்பெருமானுக்கு தமிழ்நாட்டிலும் இந்தியாவின் பல பகுதிகளிலும் பல புகழ்பெற்ற கோயில்கள் உள்ளன. ஆறுபடை வீடுகள் மிகவும் பிரபலமானவை.";
+    }
+
+
+    /* =================================================
+       DEFAULT
+    ================================================= */
+
+    return "சரி பவ்யா 🐱💜 புரியுது. இன்னும் கொஞ்சம் detail-ஆ சொல்லுங்க. நான் உங்களோட friendly-ஆ பேசிக்கிட்டே இருக்கேன் 😊";
+}
+
+
+/* =====================================================
+   SEND MESSAGE
+===================================================== */
+
+function sendMessage(){
+
+    const message =
+        input.value.trim();
+
+    if(!message){
+        return;
+    }
+
+
+    const welcome =
+        document.getElementById("welcome");
+
+    if(welcome){
+        welcome.remove();
+    }
+
+
+    addMessage(
+        message,
+        "user"
+    );
+
+
+    input.value = "";
+
+
+    showTyping();
+
+
+    setTimeout(function(){
+
+        removeTyping();
+
+
+        const reply =
+            getReply(message);
+
+
+        addMessage(
+            reply,
+            "bot"
+        );
+
+    },700);
+}
+
+
+/* ENTER TO SEND */
+
+input.addEventListener(
+    "keydown",
+    function(event){
+
+        if(event.key === "Enter"){
+
+            event.preventDefault();
+
+            sendMessage();
+        }
+
+    }
+);
+
+
+/* =====================================================
+   DARK / LIGHT
+===================================================== */
+
+function toggleMode(){
+
+    document.body.classList.toggle(
+        "light"
+    );
+
+    const light =
+        document.body.classList.contains(
+            "light"
+        );
+
+    document.getElementById(
+        "modeBtn"
+    ).textContent =
+        light ? "☀️" : "🌙";
+
+
+    localStorage.setItem(
+        "bhakshiMode",
+        light ? "light" : "dark"
+    );
+}
+
+
+if(
+    localStorage.getItem(
+        "bhakshiMode"
+    ) === "light"
+){
+
+    document.body.classList.add(
+        "light"
+    );
+
+    document.getElementById(
+        "modeBtn"
+    ).textContent =
+        "☀️";
+}
+
+
+/* =====================================================
+   NEW CHAT
+===================================================== */
+
+function newChat(){
+
+    chatBox.innerHTML = `
+        <div class="welcome" id="welcome">
+
+            <div class="welcomeIcon">
+                🐱
+            </div>
+
+            <h1>
+                Hi, நான் Bhakshi 👋
+            </h1>
+
+            <p>
+                பவ்யா Friendly Conversation 💜<br>
+                புதிய chat ஆரம்பிக்கலாம்!
+            </p>
+
+        </div>
+    `;
+
+    conversation = [];
+}
+
+
+/* =====================================================
+   CHAT HISTORY
+===================================================== */
+
+function saveHistory(){
+
+    localStorage.setItem(
+        "bhakshiHistory",
+        JSON.stringify(
+            conversation
+        )
+    );
+
+    updateHistory();
+}
+
+
+function updateHistory(){
+
+    historyBox.innerHTML = "";
+
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                "bhakshiHistory"
+            ) || "[]"
+        );
+
+
+    saved
+        .filter(
+            item =>
+            item.type === "user"
+        )
+        .slice(-20)
+        .reverse()
+        .forEach(
+            item => {
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+                div.className =
+                    "historyItem";
+
+                div.textContent =
+                    item.text;
+
+                div.onclick =
+                    function(){
+
+                        input.value =
+                            item.text;
+
+                        input.focus();
+                    };
+
+
+                historyBox.appendChild(
+                    div
+                );
+
+            }
+        );
+}
+
+
+updateHistory();
+
+
+/* =====================================================
+   VOICE INPUT
+===================================================== */
+
+function startVoice(){
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if(!SpeechRecognition){
+
+        addMessage(
+            "இந்த browser-ல் Voice Input support இல்லை. Chrome-ல் try பண்ணுங்க. 🎤",
+            "bot"
+        );
+
+        return;
+    }
+
+
+    const recognition =
+        new SpeechRecognition();
+
+
+    recognition.lang =
+        "ta-IN";
+
+
+    recognition.continuous =
+        false;
+
+
+    recognition.interimResults =
+        false;
+
+
+    recognition.start();
+
+
+    recognition.onresult =
+        function(event){
+
+            const text =
+                event
+                .results[0][0]
+                .transcript;
+
+
+            input.value =
+                text;
+
+
+            sendMessage();
+        };
+
+
+    recognition.onerror =
+        function(){
+
+            addMessage(
+                "Voice input-ஐ மீண்டும் try பண்ணுங்க 🎤",
+                "bot"
+            );
+
+        };
+}
+
+
+/* =====================================================
+   CAMERA / PHOTO
+===================================================== */
+
+function openPhoto(){
+
+    document.getElementById(
+        "photoInput"
+    ).click();
+}
+
+
+document
+    .getElementById(
+        "photoInput"
+    )
+    .addEventListener(
+        "change",
+        function(){
+
+            const file =
+                this.files[0];
+
+
+            if(!file){
+                return;
+            }
+
+
+            addMessage(
+                "📷 Photo selected: " +
+                file.name,
+                "user"
+            );
+
+
+            setTimeout(
+                function(){
+
+                    addMessage(
+                        "📷 Photo வந்துடுச்சு பவ்யா 😊 இந்த version-ல் photo/camera input ready-ஆ இருக்கு.",
+                        "bot"
+                    );
+
+                },
+                600
+            );
+
+        }
+    );
+
+
+/* =====================================================
+   CALCULATOR
+===================================================== */
+
+function showCalculator(){
+
+    const value =
+        prompt(
+            "🧮 Calculator\n\nExample: 25 + 10 * 2"
+        );
+
+
+    if(value === null){
+        return;
+    }
+
+
+    try{
+
+        const result =
+            Function(
+                '"use strict";return (' +
+                value +
+                ')'
+            )();
+
+
+        addMessage(
+            "🧮 " +
+            value +
+            " = " +
+            result,
+            "bot"
+        );
+
+    }
+    catch{
+
+        addMessage(
+            "Calculator-க்கு சரியான calculation கொடுங்க.",
+            "bot"
+        );
+
+    }
+}
+
+
+/* =====================================================
+   MINI GAME
+===================================================== */
+
+function showGame(){
+
+    const number =
+        Math.floor(
+            Math.random() * 5
+        ) + 1;
+
+
+    const guess =
+        prompt(
+            "🎮 Guess the Number!\n\n1 முதல் 5 வரை ஒரு number guess பண்ணுங்க."
+        );
+
+
+    if(guess === null){
+        return;
+    }
+
+
+    if(
+        Number(guess) === number
+    ){
+
+        addMessage(
+            "🎉 Super! Correct! Number " +
+            number +
+            ". நீங்க ஜெயிச்சுட்டீங்க!",
+            "bot"
+        );
+
+    }
+    else{
+
+        addMessage(
+            "😄 Nice try! Correct number " +
+            number +
+            ". இன்னொரு round விளையாடலாம்!",
+            "bot"
+        );
+
+    }
+}
+
+
+/* =====================================================
+   DAILY PLAN
+===================================================== */
+
+function showPlanner(){
+
+    const plan =
+        prompt(
+            "📅 உங்கள் Daily Plan-ஐ எழுதுங்க.\n\nExample: Coding class at 5 PM"
+        );
+
+
+    if(plan === null){
+        return;
+    }
+
+
+    addMessage(
+        "📅 Daily Plan:\n" +
+        plan,
+        "bot"
+    );
+}
+
+
+/* =====================================================
+   SAVE CHAT AS TEXT
+===================================================== */
+
+function downloadChat(){
+
+    if(
+        conversation.length === 0
+    ){
+
+        alert(
+            "இன்னும் chat இல்லை."
+        );
+
+        return;
+    }
+
+
+    let text =
+        "🐱 Bhakshi Friendly Conversation\n\n";
+
+
+    conversation.forEach(
+        item => {
+
+            text +=
+                (
+                    item.type === "user"
+                    ? "You: "
+                    : "Bhakshi: "
+                ) +
+                item.text +
+                "\n\n";
+
+        }
+    );
+
+
+    const blob =
+        new Blob(
+            [text],
+            {
+                type:
+                "text/plain"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const a =
+        document.createElement(
+            "a"
+        );
+
+
+    a.href =
+        url;
+
+
+    a.download =
+        "bhakshi-chat.txt";
+
+
+    a.click();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+}
+
+</script>
+
+</body>
+</html>
